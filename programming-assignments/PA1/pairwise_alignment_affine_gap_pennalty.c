@@ -19,6 +19,14 @@ void alignment_dp_cell_init(struct alignment_dp_cell* cell) {
     cell->s = 0;
 }
 
+void pairwise_global_alignment_affine_gap_pennalty(char* s1, char* s2, ) {
+
+}
+
+void pairwise_alignment_affine_gap_pennalty(char* sequence_file_path, struct alignment_parameters*, int alignment_flag) {
+
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 //  /$$$$$$$                                                        /$$                               /$$                                 /$$ /$$                    
 // | $$__  $$                                                      | $$                              | $$                                | $$|__/                    
@@ -108,9 +116,9 @@ void match_key_to_value(char* key_string, char* value_string, struct alignment_p
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 /*
- * Reads a genetic sequence from a FASTA file
+ * Reads a genetic sequence from a fasta file
  * returns:
- *      NULL --> Memory allocation failure or EOF before sequence
+ *      NULL --> Memory allocation failure
  *      Pointer to sequence (char*) otherwise
  */
 char* read_genetic_sequence(FILE* file_pointer) {
@@ -148,7 +156,7 @@ char* read_genetic_sequence(FILE* file_pointer) {
 }
 
 /*
- * Loads two genetic sequences from a FASTA file
+ * Loads two genetic sequences from a fasta file
  * returns:
  *      0 --> Error reading the file
  *      1 --> Successfully loaded two sequences
@@ -160,7 +168,9 @@ int load_genetic_sequences(const char* file_path, char** s1_ptr, char** s2_ptr) 
     char read_buffer[BUFFER_CHUNK_SIZE];
 
     while (fgets(read_buffer, sizeof(read_buffer), file_pointer)) {
-        if (read_buffer[0] == '>') break;
+        if (read_buffer[0] == '>') {
+            break;
+        }
     }
 
     *s1_ptr = read_genetic_sequence(file_pointer);
@@ -170,7 +180,9 @@ int load_genetic_sequences(const char* file_path, char** s1_ptr, char** s2_ptr) 
     }
 
     while (fgets(read_buffer, sizeof(read_buffer), file_pointer)) {
-        if (read_buffer[0] == '>') break;
+        if (read_buffer[0] == '>') {
+            break;
+        }
     }
 
     *s2_ptr = read_genetic_sequence(file_pointer);
