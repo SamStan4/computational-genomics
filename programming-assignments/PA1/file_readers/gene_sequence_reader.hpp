@@ -9,5 +9,5 @@ using std::getline;
 
 class gene_sequence_reader {
     public:
-    static bool read_gene_sequences(const string&, string&, string&);
+        static bool read_gene_sequences(const string&, string&, string&);
 };

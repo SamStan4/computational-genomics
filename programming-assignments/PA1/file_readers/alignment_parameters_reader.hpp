@@ -13,5 +13,5 @@ using std::stringstream;
 
 class alignment_parameters_reader {
     public:
-    static bool read_alignment_parameters(const string&, double&, double&, double&, double&);
+        static bool read_alignment_parameters(const string&, double&, double&, double&, double&);
 };
