@@ -1,10 +1,5 @@
 #include "./pairwise_alignment_affine_gap_pennalty.h"
 
-const char* match_constant_key_name = "match";
-const char* mismatch_constant_key_name = "mismatch";
-const char* h_constant_key_name = "h";
-const char* g_constant_key_name = "g";
-
 /**
  * Initializer for alignemnt parameter structure
  */
@@ -46,6 +41,7 @@ int get_parameters(char* file_path, struct alignment_parameters* parameters) {
 /**
  * Parses an individual line in the file, populates the
  * appropreate field inside the parameter structure
+ * lines appear in the form "key value" inside of the file
  */
 void parse_file_line(char* buffer, struct alignment_parameters* parameters) {
     char key_string[FILE_READ_BUFFER_SIZE_BYTES] = { '\0' },
@@ -54,5 +50,30 @@ void parse_file_line(char* buffer, struct alignment_parameters* parameters) {
     for (int j = 0; i < FILE_READ_BUFFER_SIZE_BYTES && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\0'; ++i, ++j) {
         key_string[j] = buffer[i];
     }
-    printf("Here is the buffer: %s Here is the key: %s\n\n", buffer, key_string);
+    while (i < FILE_READ_BUFFER_SIZE_BYTES && buffer[i] == ' ') {
+        ++i;
+    }
+    for (int j = 0; i < FILE_READ_BUFFER_SIZE_BYTES && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\0'; ++i, ++j) {
+        value_string[j] = buffer[i];
+    }
+    match_key_to_value(key_string, value_string, parameters);
+}
+
+/**
+ * Finds the appropreate field to match to and then sets it
+ */
+void match_key_to_value(char* key_string, char* value_string, struct alignment_parameters* parameters) {
+    static const char* match_constant_key_name = "match";
+    static const char* mismatch_constant_key_name = "mismatch";
+    static const char* h_constant_key_name = "h";
+    static const char* g_constant_key_name = "g";
+    if (strcmp(key_string, match_constant_key_name) == 0) {
+        parameters->match_constant = strtod(value_string, NULL);
+    } else if (strcmp(key_string, mismatch_constant_key_name) == 0) {
+        parameters->mismatch_constant = strtod(value_string, NULL);
+    } else if (strcmp(key_string, h_constant_key_name) == 0) {
+        parameters->h_constant = strtod(value_string, NULL);
+    } else if (strcmp(key_string, g_constant_key_name) == 0) {
+        parameters->g_constant = strtod(value_string, NULL);
+    }
 }

@@ -8,11 +8,6 @@
 
 #define FILE_READ_BUFFER_SIZE_BYTES 100
 
-extern const char* match_constant_key_name;
-extern const char* mismatch_constant_key_name;
-extern const char* h_constant_key_name;
-extern const char* g_constant_key_name;
-
 /**
  * The different parameters for the pairwise affine gap pennalty
  * sequence alignment algorithm.
@@ -41,5 +36,7 @@ void alignment_dp_cell_init(struct alignment_dp_cell*);
 int get_parameters(char*, struct alignment_parameters*);
 
 void parse_file_line(char*, struct alignment_parameters*);
+
+void match_key_to_value(char*, char*, struct alignment_parameters*);
 
 #endif
