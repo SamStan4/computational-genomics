@@ -13,5 +13,8 @@ bool application_wrapper::parse_out_argument_vector(int argument_count, char** a
 void application_wrapper::run_application(int argument_count, char** argument_vector) {
     string sequence_file_path, parameter_config_file_path;
     int alignment_flag;
-    application_wrapper::parse_out_argument_vector(argument_count, argument_vector, sequence_file_path, alignment_flag, parameter_config_file_path);
+    if (!application_wrapper::parse_out_argument_vector(argument_count, argument_vector, sequence_file_path, alignment_flag, parameter_config_file_path)) {
+        cerr << "Error parsing command line arguments" << endl;
+        return;
+    }
 }

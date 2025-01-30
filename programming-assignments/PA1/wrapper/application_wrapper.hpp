@@ -1,9 +1,12 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 
 using std::string;
 using std::stod;
+using std::cerr;
+using std::endl;
 
 class application_wrapper {
     private:
