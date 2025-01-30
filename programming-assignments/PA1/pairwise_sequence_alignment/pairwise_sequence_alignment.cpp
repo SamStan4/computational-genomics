@@ -92,11 +92,13 @@ void pairwise_sequence_alignment::initialize_dp_table_for_local_alignment(const 
 void pairwise_sequence_alignment::pairwise_global_sequence_alignment_affine_gap_penalty(const string& s1, const string& s2, const int m_a, const int m_i, const int h, const int g, alignment_statistics& stats) {
     vector<vector<dp_cell>> dp_table;
     pairwise_sequence_alignment::initialize_dp_table_for_global_alignment(s1, s2, dp_table, h, g);
+    pairwise_sequence_alignment::run_dynamic_programming_for_global_alignment(s1, s2, dp_table, m_a, m_i, h, g);
 }
 
 void pairwise_sequence_alignment::pairwise_local_sequence_alignment_affine_gap_penalty(const string& s1, const string& s2, const int m_a, const int m_i, const int h, const int g, alignment_statistics& stats) {
     vector<vector<dp_cell>> dp_table;
     pairwise_sequence_alignment::initialize_dp_table_for_local_alignment(s1, s2, dp_table);
+    pairwise_sequence_alignment::run_dynamic_programming_for_local_alignment(s1, s2, dp_table, m_a, m_i, h, g);
 }
 
 void pairwise_sequence_alignment::pairwise_sequence_alignment_affine_gap_penalty(const string& fasta_file_path, const int m_a, const int m_i, const int h, const int g, const int alignment_flag) {
