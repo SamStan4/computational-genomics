@@ -34,6 +34,12 @@ typedef struct alignment_statistics {
     int number_of_opening_gaps;
     int number_of_gap_extensions;
     string optimal_path[3];
+    alignment_statistics() {
+        this->optimal_alignment_score = 0;
+        this->number_of_matches = 0;
+        this->number_of_opening_gaps = 0;
+        this->number_of_gap_extensions = 0;
+    }
 } alignment_statistics;
 
 class pairwise_sequence_alignment {
