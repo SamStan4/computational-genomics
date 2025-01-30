@@ -8,10 +8,10 @@
 
 #define FILE_READ_BUFFER_SIZE_BYTES 100
 
-const char* match_constant_key_name = "match";
-const char* mismatch_constant_key_name = "mismatch";
-const char* h_constant_key_name = "h";
-const char* g_constant_key_name = "g";
+extern const char* match_constant_key_name;
+extern const char* mismatch_constant_key_name;
+extern const char* h_constant_key_name;
+extern const char* g_constant_key_name;
 
 /**
  * The different parameters for the pairwise affine gap pennalty
@@ -38,8 +38,8 @@ void alignment_parameters_init(struct alignment_parameters*);
 
 void alignment_dp_cell_init(struct alignment_dp_cell*);
 
-int get_parameters(char*, double*, double*, double*, double*);
+int get_parameters(char*, struct alignment_parameters*);
 
-void parse_file_line(char*, char*, char*);
+void parse_file_line(char*, struct alignment_parameters*);
 
 #endif

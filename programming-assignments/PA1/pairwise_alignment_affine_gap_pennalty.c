@@ -1,5 +1,10 @@
 #include "./pairwise_alignment_affine_gap_pennalty.h"
 
+const char* match_constant_key_name = "match";
+const char* mismatch_constant_key_name = "mismatch";
+const char* h_constant_key_name = "h";
+const char* g_constant_key_name = "g";
+
 /**
  * Initializer for alignemnt parameter structure
  */
@@ -43,5 +48,11 @@ int get_parameters(char* file_path, struct alignment_parameters* parameters) {
  * appropreate field inside the parameter structure
  */
 void parse_file_line(char* buffer, struct alignment_parameters* parameters) {
-    
+    char key_string[FILE_READ_BUFFER_SIZE_BYTES] = { '\0' },
+       value_string[FILE_READ_BUFFER_SIZE_BYTES] = { '\0' };
+    int i = 0;
+    for (int j = 0; i < FILE_READ_BUFFER_SIZE_BYTES && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\0'; ++i, ++j) {
+        key_string[j] = buffer[i];
+    }
+    printf("Here is the buffer: %s Here is the key: %s\n\n", buffer, key_string);
 }
