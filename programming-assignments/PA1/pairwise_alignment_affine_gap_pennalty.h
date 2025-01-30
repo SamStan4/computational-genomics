@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define FILE_READ_BUFFER_SIZE_BYTES 100
+#define BUFFER_CHUNK_SIZE 256
 
 /**
  * The different parameters for the pairwise affine gap pennalty
@@ -38,5 +38,9 @@ int get_parameters(char*, struct alignment_parameters*);
 void parse_file_line(char*, struct alignment_parameters*);
 
 void match_key_to_value(char*, char*, struct alignment_parameters*);
+
+char* read_genetic_sequence(FILE*);
+
+int load_genetic_sequences(const char*, char**, char**);
 
 #endif

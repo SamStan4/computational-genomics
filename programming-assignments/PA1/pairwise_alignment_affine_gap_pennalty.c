@@ -44,11 +44,12 @@ int get_parameters(char* file_path, struct alignment_parameters* parameters) {
     if (file_pointer == NULL) {
         return 0;
     }
-    char buffer[FILE_READ_BUFFER_SIZE_BYTES] = { '\0' };
-    while (fgets(buffer, FILE_READ_BUFFER_SIZE_BYTES, file_pointer) != NULL) {
+    char buffer[BUFFER_CHUNK_SIZE] = { '\0' };
+    while (fgets(buffer, BUFFER_CHUNK_SIZE, file_pointer) != NULL) {
         parse_file_line(buffer, parameters);
-        memset(buffer, '\0', FILE_READ_BUFFER_SIZE_BYTES);
+        memset(buffer, '\0', BUFFER_CHUNK_SIZE);
     }
+    fclose(file_pointer);
     return 1;
 }
 
@@ -58,16 +59,16 @@ int get_parameters(char* file_path, struct alignment_parameters* parameters) {
  * lines appear in the form "key value" inside of the file
  */
 void parse_file_line(char* buffer, struct alignment_parameters* parameters) {
-    char key_string[FILE_READ_BUFFER_SIZE_BYTES] = { '\0' },
-       value_string[FILE_READ_BUFFER_SIZE_BYTES] = { '\0' };
+    char key_string[BUFFER_CHUNK_SIZE] = { '\0' },
+       value_string[BUFFER_CHUNK_SIZE] = { '\0' };
     int i = 0;
-    for (int j = 0; i < FILE_READ_BUFFER_SIZE_BYTES && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\0'; ++i, ++j) {
+    for (int j = 0; i < BUFFER_CHUNK_SIZE && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\0'; ++i, ++j) {
         key_string[j] = buffer[i];
     }
-    while (i < FILE_READ_BUFFER_SIZE_BYTES && buffer[i] == ' ') {
+    while (i < BUFFER_CHUNK_SIZE && buffer[i] == ' ') {
         ++i;
     }
-    for (int j = 0; i < FILE_READ_BUFFER_SIZE_BYTES && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\0'; ++i, ++j) {
+    for (int j = 0; i < BUFFER_CHUNK_SIZE && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\0'; ++i, ++j) {
         value_string[j] = buffer[i];
     }
     match_key_to_value(key_string, value_string, parameters);
@@ -90,4 +91,95 @@ void match_key_to_value(char* key_string, char* value_string, struct alignment_p
     } else if (strcmp(key_string, g_constant_key_name) == 0) {
         parameters->g_constant = strtod(value_string, NULL);
     }
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+//   /$$$$$$                                                                              /$$                                 /$$ /$$                    
+//  /$$__  $$                                                                            | $$                                | $$|__/                    
+// | $$  \__/  /$$$$$$   /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$   /$$$$$$$  /$$$$$$       | $$        /$$$$$$   /$$$$$$   /$$$$$$$ /$$ /$$$$$$$   /$$$$$$ 
+// |  $$$$$$  /$$__  $$ /$$__  $$| $$  | $$ /$$__  $$| $$__  $$ /$$_____/ /$$__  $$      | $$       /$$__  $$ |____  $$ /$$__  $$| $$| $$__  $$ /$$__  $$
+//  \____  $$| $$$$$$$$| $$  \ $$| $$  | $$| $$$$$$$$| $$  \ $$| $$      | $$$$$$$$      | $$      | $$  \ $$  /$$$$$$$| $$  | $$| $$| $$  \ $$| $$  \ $$
+//  /$$  \ $$| $$_____/| $$  | $$| $$  | $$| $$_____/| $$  | $$| $$      | $$_____/      | $$      | $$  | $$ /$$__  $$| $$  | $$| $$| $$  | $$| $$  | $$
+// |  $$$$$$/|  $$$$$$$|  $$$$$$$|  $$$$$$/|  $$$$$$$| $$  | $$|  $$$$$$$|  $$$$$$$      | $$$$$$$$|  $$$$$$/|  $$$$$$$|  $$$$$$$| $$| $$  | $$|  $$$$$$$
+//  \______/  \_______/ \____  $$ \______/  \_______/|__/  |__/ \_______/ \_______/      |________/ \______/  \_______/ \_______/|__/|__/  |__/ \____  $$
+//                           | $$                                                                                                               /$$  \ $$
+//                           | $$                                                                                                              |  $$$$$$/
+//                           |__/                                                                                                               \______/ 
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+/*
+ * Reads a genetic sequence from a FASTA file
+ * returns:
+ *      NULL --> Memory allocation failure or EOF before sequence
+ *      Pointer to sequence (char*) otherwise
+ */
+char* read_genetic_sequence(FILE* file_pointer) {
+    char* sequence = (char*) malloc(BUFFER_CHUNK_SIZE);
+    if (sequence == NULL) {
+        return NULL;
+    }
+
+    size_t sequence_length = 0, sequence_capacity = BUFFER_CHUNK_SIZE;
+    char read_buffer[BUFFER_CHUNK_SIZE];
+
+    while (fgets(read_buffer, sizeof(read_buffer), file_pointer)) {
+        if (read_buffer[0] == '>') {
+            fseek(file_pointer, -strlen(read_buffer), SEEK_CUR);
+            break;
+        }
+
+        size_t read_line_length = strcspn(read_buffer, "\r\n");
+        if (sequence_length + read_line_length >= sequence_capacity) {
+            sequence_capacity *= 2;
+            char* temp = realloc(sequence, sequence_capacity);
+            if (temp == NULL) {
+                free(sequence);
+                return NULL;
+            }
+            sequence = temp;
+        }
+
+        memcpy(sequence + sequence_length, read_buffer, read_line_length);
+        sequence_length += read_line_length;
+    }
+
+    sequence[sequence_length] = '\0';
+    return sequence;
+}
+
+/*
+ * Loads two genetic sequences from a FASTA file
+ * returns:
+ *      0 --> Error reading the file
+ *      1 --> Successfully loaded two sequences
+ */
+int load_genetic_sequences(const char* file_path, char** s1_ptr, char** s2_ptr) {
+    FILE* file_pointer = fopen(file_path, "r");
+    if (!file_pointer) return 0;
+
+    char read_buffer[BUFFER_CHUNK_SIZE];
+
+    while (fgets(read_buffer, sizeof(read_buffer), file_pointer)) {
+        if (read_buffer[0] == '>') break;
+    }
+
+    *s1_ptr = read_genetic_sequence(file_pointer);
+    if (!*s1_ptr) {
+        fclose(file_pointer);
+        return 0;
+    }
+
+    while (fgets(read_buffer, sizeof(read_buffer), file_pointer)) {
+        if (read_buffer[0] == '>') break;
+    }
+
+    *s2_ptr = read_genetic_sequence(file_pointer);
+    if (!*s2_ptr) {
+        free(*s1_ptr);
+        fclose(file_pointer);
+        return 0;
+    }
+
+    fclose(file_pointer);
+    return 1;
 }
