@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include "./../file_readers/gene_sequence_reader.hpp"
 
 #include <iostream>
 
