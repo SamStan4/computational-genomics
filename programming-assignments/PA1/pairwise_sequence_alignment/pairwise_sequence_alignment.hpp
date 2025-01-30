@@ -6,6 +6,8 @@
 #include <mutex>
 #include "./../file_readers/gene_sequence_reader.hpp"
 
+#define USE_MULTIPLE_THREADS_DP false
+
 #include <iostream>
 
 using std::mutex;
@@ -45,6 +47,20 @@ typedef struct alignment_statistics {
 
 class pairwise_sequence_alignment {
     private:
+        static void initialize_dp_table_for_global_alignment(const string&, const string&, vector<vector<dp_cell>>&, const double, const double);
+        static void initialize_dp_table_for_local_alignment(const string&, const string&, vector<vector<dp_cell>>&);
+
+        #if USE_MULTIPLE_THREADS_DP
+
+            static void dynamic_programming_for_global_alignment_thread_routine(void);
+
+            static void dynamic_programming_for_local_alignment_thread_routine(void);
+
+        #endif
+
+        static void run_dynamic_programming_for_global_alignment(const string&, const string&, vector<vector<dp_cell>>&, const double, const double, const double, const double);
+        static void run_dynamic_programming_for_local_alignment(const string&, const string&, vector<vector<dp_cell>>&, const double, const double, const double, const double);
+
         static void pairwise_global_sequence_alignment_affine_gap_penalty(const string&, const string&, const double, const double, const double, const double, alignment_statistics&);
         static void pairwise_local_sequence_alignment_affine_gap_penalty(const string&, const string&, const double, const double, const double, const double, alignment_statistics&);
     public:

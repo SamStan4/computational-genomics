@@ -1,11 +1,82 @@
 #include "./pairwise_sequence_alignment.hpp"
 
+void pairwise_sequence_alignment::initialize_dp_table_for_global_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const double h, const double g) {
+    static const int negative_infinity = -2147483648;
+    dp_table = vector<vector<dp_cell>>(s1.size() + 1, vector<dp_cell>(s2.size() + 1));
+    // Initialize T(0, 0)
+    dp_table[0][0].d_score = 0;
+    dp_table[0][0].i_score = 0;
+    dp_table[0][0].s_score = 0;
+    // For all i in { 1 .. m } set T(i, 0) to appropreate value
+    for (int i = 1; i < dp_table.size(); ++i) {
+        dp_table[i][0].s_score = negative_infinity;
+        dp_table[i][0].d_score = h + (i * g);
+        dp_table[i][0].i_score = negative_infinity;
+    }
+    // For all j in { 1 .. n } set T(0, j) to appropreate value
+    for (int j = 1; j < dp_table[0].size(); ++j) {
+        dp_table[0][j].s_score = negative_infinity;
+        dp_table[0][j].d_score = negative_infinity;
+        dp_table[0][j].i_score = h + (j * g);
+    }
+}
+
+void pairwise_sequence_alignment::initialize_dp_table_for_local_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table) {
+    dp_table = vector<vector<dp_cell>>(s1.size() + 1, vector<dp_cell>(s2.size() + 1));
+    // Initialize first row and column to be zeros
+    for (int i = 0; i < dp_table.size(); ++i) {
+        dp_table[i][0].s_score = 0;
+        dp_table[i][0].d_score = 0;
+        dp_table[i][0].i_score = 0;
+    }
+    for (int j = 1; j < dp_table[0].size(); ++j) {
+        dp_table[0][j].s_score = 0;
+        dp_table[0][j].d_score = 0;
+        dp_table[0][j].i_score = 0;
+    }
+}
+
+#if USE_MULTIPLE_THREADS_DP
+// Implementation using multiple threads
+
+    void pairwise_sequence_alignment::dynamic_programming_for_global_alignment_thread_routine(void) {
+
+    }
+
+    void pairwise_sequence_alignment::dynamic_programming_for_local_alignment_thread_routine(void) {
+
+    }
+
+
+    void pairwise_sequence_alignment::run_dynamic_programming_for_global_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const double m_a, const double m_i, const double h, const double g) {
+
+    }
+
+    void pairwise_sequence_alignment::run_dynamic_programming_for_local_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const double m_a, const double m_i, const double h, const double g) {
+        
+    }
+
+#else
+// Single thread implementation
+
+    void pairwise_sequence_alignment::run_dynamic_programming_for_global_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const double m_a, const double m_i, const double h, const double g) {
+        
+    }
+
+    void pairwise_sequence_alignment::run_dynamic_programming_for_local_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const double m_a, const double m_i, const double h, const double g) {
+        
+    }
+
+#endif
+
 void pairwise_sequence_alignment::pairwise_global_sequence_alignment_affine_gap_penalty(const string& s1, const string& s2, const double m_a, const double m_i, const double h, const double g, alignment_statistics& stats) {
-    cout << "inside global alignment function" << endl;
+    vector<vector<dp_cell>> dp_table;
+    pairwise_sequence_alignment::initialize_dp_table_for_global_alignment(s1, s2, dp_table, h, g);
 }
 
 void pairwise_sequence_alignment::pairwise_local_sequence_alignment_affine_gap_penalty(const string& s1, const string& s2, const double m_a, const double m_i, const double h, const double g, alignment_statistics& stats) {
-    cout << "inside local alignment function" << endl;
+    vector<vector<dp_cell>> dp_table;
+    pairwise_sequence_alignment::initialize_dp_table_for_local_alignment(s1, s2, dp_table);
 }
 
 void pairwise_sequence_alignment::pairwise_sequence_alignment_affine_gap_penalty(const string& fasta_file_path, const double m_a, const double m_i, const double h, const double g, int alignment_flag) {
