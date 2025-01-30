@@ -12,6 +12,7 @@ using std::mutex;
 using std::thread;
 using std::string;
 using std::vector;
+using std::cerr;
 
 using std::cin;
 using std::cout;
@@ -43,6 +44,9 @@ typedef struct alignment_statistics {
 } alignment_statistics;
 
 class pairwise_sequence_alignment {
+    private:
+        static void pairwise_global_sequence_alignment_affine_gap_penalty(const string&, const string&, const double, const double, const double, const double, alignment_statistics&);
+        static void pairwise_local_sequence_alignment_affine_gap_penalty(const string&, const string&, const double, const double, const double, const double, alignment_statistics&);
     public:
         static void pairwise_sequence_alignment_affine_gap_penalty(const string&, const double, const double, const double, const double, int);
 };
