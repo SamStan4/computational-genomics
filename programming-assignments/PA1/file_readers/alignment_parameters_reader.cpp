@@ -1,6 +1,6 @@
 #include "./alignment_parameters_reader.hpp"
 
-bool alignment_parameters_reader::read_alignment_parameters(const string& file_path, double& m_a, double& m_i, double& h, double& g) {
+bool alignment_parameters_reader::read_alignment_parameters(const string& file_path, int& m_a, int& m_i, int& h, int& g) {
     static unordered_map<string, double> key_value = { {"match", 0}, {"mismatch", 0}, {"g", 0}, {"h", 0} };
     ifstream file(file_path);
     if (!file.is_open()) {
@@ -15,7 +15,7 @@ bool alignment_parameters_reader::read_alignment_parameters(const string& file_p
         string key, value;
         file_line_stream >> key >> value;
         if (key_value.find(key) != key_value.end()) {
-            key_value[key] = stod(value);
+            key_value[key] = stoi(value);
         }
     }
     m_a = key_value["match"];

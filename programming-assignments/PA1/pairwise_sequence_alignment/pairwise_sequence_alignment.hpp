@@ -15,6 +15,7 @@ using std::thread;
 using std::string;
 using std::vector;
 using std::cerr;
+using std::max;
 
 using std::cin;
 using std::cout;
@@ -47,7 +48,7 @@ typedef struct alignment_statistics {
 
 class pairwise_sequence_alignment {
     private:
-        static void initialize_dp_table_for_global_alignment(const string&, const string&, vector<vector<dp_cell>>&, const double, const double);
+        static void initialize_dp_table_for_global_alignment(const string&, const string&, vector<vector<dp_cell>>&, const int, const int);
         static void initialize_dp_table_for_local_alignment(const string&, const string&, vector<vector<dp_cell>>&);
 
         #if USE_MULTIPLE_THREADS_DP
@@ -58,11 +59,11 @@ class pairwise_sequence_alignment {
 
         #endif
 
-        static void run_dynamic_programming_for_global_alignment(const string&, const string&, vector<vector<dp_cell>>&, const double, const double, const double, const double);
-        static void run_dynamic_programming_for_local_alignment(const string&, const string&, vector<vector<dp_cell>>&, const double, const double, const double, const double);
+        static void run_dynamic_programming_for_global_alignment(const string&, const string&, vector<vector<dp_cell>>&, const int, const int, const int, const int);
+        static void run_dynamic_programming_for_local_alignment(const string&, const string&, vector<vector<dp_cell>>&, const int, const int, const int, const int);
 
-        static void pairwise_global_sequence_alignment_affine_gap_penalty(const string&, const string&, const double, const double, const double, const double, alignment_statistics&);
-        static void pairwise_local_sequence_alignment_affine_gap_penalty(const string&, const string&, const double, const double, const double, const double, alignment_statistics&);
+        static void pairwise_global_sequence_alignment_affine_gap_penalty(const string&, const string&, const int, const int, const int, const int, alignment_statistics&);
+        static void pairwise_local_sequence_alignment_affine_gap_penalty(const string&, const string&, const int, const int, const int, const int, alignment_statistics&);
     public:
-        static void pairwise_sequence_alignment_affine_gap_penalty(const string&, const double, const double, const double, const double, int);
+        static void pairwise_sequence_alignment_affine_gap_penalty(const string&, const int, const int, const int, const int, const int);
 };
