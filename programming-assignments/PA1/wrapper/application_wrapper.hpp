@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <string>
+#include "./../file_readers/alignment_parameters_reader.hpp"
+#include "./../pairwise_sequence_alignment/pairwise_sequence_alignment.hpp"
 
 using std::string;
 using std::stod;

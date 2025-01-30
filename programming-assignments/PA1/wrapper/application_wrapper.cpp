@@ -17,4 +17,7 @@ void application_wrapper::run_application(int argument_count, char** argument_ve
         cerr << "Error parsing command line arguments" << endl;
         return;
     }
+    double match_score = 0, mismatch_score = 0, gap_opening_penalty = 0, gap_extension_penalty = 0;
+    alignment_parameters_reader::read_alignment_parameters(parameter_config_file_path, match_score, mismatch_score, gap_opening_penalty, gap_extension_penalty);
+    pairwise_sequence_alignment::pairwise_sequence_alignment_affine_gap_penalty(sequence_file_path, match_score, mismatch_score, gap_opening_penalty, gap_extension_penalty, alignment_flag);
 }
