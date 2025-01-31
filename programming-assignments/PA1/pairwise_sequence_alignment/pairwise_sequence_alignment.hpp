@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <limits>
 #if USE_MULTIPLE_THREADS_DP
     #include <thread>
     #include <mutex>
@@ -23,6 +24,7 @@ using std::cerr;
 using std::max;
 using std::endl;
 using std::ofstream;
+using std::numeric_limits;
 
 typedef struct dp_cell {
     int s_score;

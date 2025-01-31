@@ -1,7 +1,7 @@
 #include "./pairwise_sequence_alignment.hpp"
 
 void pairwise_sequence_alignment::initialize_dp_table_for_global_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const int h, const int g) {
-    static const int negative_infinity = -2147483648;
+    static const int negative_infinity = numeric_limits<int>::min();
     dp_table = vector<vector<dp_cell>>(s1.size() + 1, vector<dp_cell>(s2.size() + 1));
     // Initialize T(0, 0)
     dp_table[0][0].d_score = 0;
@@ -36,7 +36,7 @@ void pairwise_sequence_alignment::initialize_dp_table_for_local_alignment(const 
     }
 }
 
-static void dump_dp_table(const string& file_path, const vector<vector<dp_cell>>& dp_table) {
+void pairwise_sequence_alignment::dump_dp_table(const string& file_path, const vector<vector<dp_cell>>& dp_table) {
     ofstream file(file_path);
     if (!file.is_open()) {
         cerr << "unable to open file: " << file_path << endl;
@@ -45,8 +45,9 @@ static void dump_dp_table(const string& file_path, const vector<vector<dp_cell>>
     const int n = dp_table.size(), m = dp_table[0].size();
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < m; ++j) {
-            file << "("
+            file << "(s: " << dp_table[i][j].s_score << ", d: " << dp_table[i][j].d_score << ", i: " << dp_table[i][j].i_score << "),";
         }
+        file << endl;
     }
 }
 
@@ -74,17 +75,20 @@ static void dump_dp_table(const string& file_path, const vector<vector<dp_cell>>
 // Single thread implementation
 
     void pairwise_sequence_alignment::run_dynamic_programming_for_global_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const int m_a, const int m_i, const int h, const int g) {
+    static const long long negative_infinity = numeric_limits<int>::min();
         const int n = dp_table.size(), m = dp_table[0].size();
+        const signed long long m_a_sll = (signed long long)m_a, m_i_sll = (signed long long)m_i, h_sll = (signed long long)h, g_sll = (signed long long)g;
         for (int i = 1; i < n; ++i) {
             for (int j = 1; j < m; ++j) {
                 // Handle s_score
-                dp_table[i][j].s_score = max(max(dp_table[i-1][j-1].s_score, dp_table[i-1][j-1].d_score), dp_table[i-1][j-1].i_score) + (s1[i-1] == s2[j-1] ? m_a : m_i);
+                dp_table[i][j].s_score = (int)max(negative_infinity, max((signed long long)max(dp_table[i-1][j-1].s_score, dp_table[i-1][j-1].d_score), (signed long long)dp_table[i-1][j-1].i_score) + (s1[i-1] == s2[j-1] ? m_a_sll : m_i_sll));
                 // Handle d_score
-                dp_table[i][j].d_score = max(max(dp_table[i-1][j].i_score, dp_table[i-1][j].s_score) + h + g, dp_table[i-1][j].d_score + g);
+                dp_table[i][j].d_score = (int)max(negative_infinity, max((signed long long)max(dp_table[i-1][j].i_score, dp_table[i-1][j].s_score) + h_sll + g_sll, (signed long long)dp_table[i-1][j].d_score + g_sll));
                 // Handle i_score
-                dp_table[i][j].i_score = max(max(dp_table[i][j-1].s_score, dp_table[i][j-1].d_score) + h + g, dp_table[i][j-1].i_score + g);
+                dp_table[i][j].i_score = (int)max(negative_infinity, max((signed long long)max(dp_table[i][j-1].s_score, dp_table[i][j-1].d_score) + h_sll + g_sll, (signed long long)dp_table[i][j-1].i_score + g_sll));
             }
         }
+        pairwise_sequence_alignment::dump_dp_table("./output.csv", dp_table);
     }
 
     void pairwise_sequence_alignment::run_dynamic_programming_for_local_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const int m_a, const int m_i, const int h, const int g) {
