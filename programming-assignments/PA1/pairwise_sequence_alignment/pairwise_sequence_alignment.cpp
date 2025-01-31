@@ -51,6 +51,44 @@ void pairwise_sequence_alignment::dump_dp_table(const string& file_path, const v
     }
 }
 
+void pairwise_sequence_alignment::path_retrace_for_global_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, alignment_statistics& statistics) {
+    statistics.optimal_path.clear();
+    int i = dp_table.size() - 1, j = dp_table[0].size() - 1;
+    while (i > 0 && j > 0) {
+        switch (dp_table[i][j].get_max_score()) {
+            case S_VALUE_KEY: // We are going to either have a match or a mismatch
+                if (s1[i-1] == s2[j-1]) { // this is a match
+                    statistics.optimal_path.push_back(MATCH_SYMBOL);
+                } else { // this is a mismatch
+                    statistics.optimal_path.push_back(MISMATCH_SYMBOL);
+                }
+                --i;
+                --j;
+            break;
+            case D_VALUE_KEY: // This is a deletion
+                statistics.optimal_path.push_back(DELETION_SYMBOL);
+                --i;
+            break;
+            case I_VALUE_KEY: // This is an insertion
+                statistics.optimal_path.push_back(INSERTION_SYMBOL);
+                --j;
+            break;
+        }
+    }
+    while (i > 0) {
+        statistics.optimal_path.push_back(DELETION_SYMBOL);
+        --i;
+    }
+    while (j > 0) {
+        statistics.optimal_path.push_back(INSERTION_SYMBOL);
+        --j;
+    }
+    reverse(statistics.optimal_path.begin(), statistics.optimal_path.end());
+}
+
+void pairwise_sequence_alignment::path_retrace_for_local_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, alignment_statistics& statistics) {
+}
+
 #if USE_MULTIPLE_THREADS_DP
 // Implementation using multiple threads
 
@@ -111,6 +149,9 @@ void pairwise_sequence_alignment::pairwise_global_sequence_alignment_affine_gap_
     vector<vector<dp_cell>> dp_table;
     pairwise_sequence_alignment::initialize_dp_table_for_global_alignment(s1, s2, dp_table, h, g);
     pairwise_sequence_alignment::run_dynamic_programming_for_global_alignment(s1, s2, dp_table, m_a, m_i, h, g);
+    pairwise_sequence_alignment::path_retrace_for_global_alignment(s1, s2, dp_table, stats);
+    ofstream file("./sample_output.txt");
+    stats.dump_alignment_to_file(file, s1, s2, 60);
 }
 
 void pairwise_sequence_alignment::pairwise_local_sequence_alignment_affine_gap_penalty(const string& s1, const string& s2, const int m_a, const int m_i, const int h, const int g, alignment_statistics& stats) {
