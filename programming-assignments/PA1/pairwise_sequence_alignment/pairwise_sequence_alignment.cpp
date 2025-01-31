@@ -36,6 +36,20 @@ void pairwise_sequence_alignment::initialize_dp_table_for_local_alignment(const 
     }
 }
 
+static void dump_dp_table(const string& file_path, const vector<vector<dp_cell>>& dp_table) {
+    ofstream file(file_path);
+    if (!file.is_open()) {
+        cerr << "unable to open file: " << file_path << endl;
+    }
+    cout << "dumping file to: " << file_path << endl;
+    const int n = dp_table.size(), m = dp_table[0].size();
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            file << "("
+        }
+    }
+}
+
 #if USE_MULTIPLE_THREADS_DP
 // Implementation using multiple threads
 

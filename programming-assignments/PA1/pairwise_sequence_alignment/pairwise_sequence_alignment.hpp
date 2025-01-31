@@ -1,25 +1,28 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <thread>
-#include <mutex>
-#include "./../file_readers/gene_sequence_reader.hpp"
-
 #define USE_MULTIPLE_THREADS_DP false
 
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#if USE_MULTIPLE_THREADS_DP
+    #include <thread>
+    #include <mutex>
+#endif
+#include "./../file_readers/gene_sequence_reader.hpp"
 
-using std::mutex;
-using std::thread;
+#if USE_MULTIPLE_THREADS_DP
+    using std::mutex;
+    using std::thread;
+#endif
+using std::cout;
 using std::string;
 using std::vector;
 using std::cerr;
 using std::max;
-
-using std::cin;
-using std::cout;
 using std::endl;
+using std::ofstream;
 
 typedef struct dp_cell {
     int s_score;
@@ -50,6 +53,8 @@ class pairwise_sequence_alignment {
     private:
         static void initialize_dp_table_for_global_alignment(const string&, const string&, vector<vector<dp_cell>>&, const int, const int);
         static void initialize_dp_table_for_local_alignment(const string&, const string&, vector<vector<dp_cell>>&);
+
+        static void dump_dp_table(const string&, const vector<vector<dp_cell>>&);
 
         #if USE_MULTIPLE_THREADS_DP
 
