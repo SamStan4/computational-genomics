@@ -71,7 +71,7 @@ typedef struct alignment_statistics {
         this->number_of_opening_gaps = 0;
         this->number_of_gap_extensions = 0;
     }
-    void dump_alignment_to_file(ofstream& file, const string& s1, const string& s2, const int line_size) {
+    void dump_alignment_visual_to_file(ofstream& file, const string& s1, const string& s2, const int line_size) const {
         int s1_consumed = 0, s2_consumed = 0;
         for (int i = 0, j = 0, k = 0; i < this->optimal_path.size(); i += line_size) {
             int m = 0, l = 0;
@@ -116,6 +116,21 @@ typedef struct alignment_statistics {
             }
             file << left << setw(3) << "" << k << endl << endl;
         }
+    }
+    int get_opening_gaps(void) const {
+        if (this->optimal_path.empty()) {
+            return 0;
+        }
+        int number_gaps = 0;
+        if (this->optimal_path[0] == DELETION_SYMBOL || this->optimal_path[0] == INSERTION_SYMBOL) {
+            ++number_gaps;
+        }
+        for (int i = 1; i < this->optimal_path.size(); ++i) {
+            if ((this->optimal_path[i] == DELETION_SYMBOL && this->optimal_path[i-1] != DELETION_SYMBOL) || (this->optimal_path[i] == INSERTION_SYMBOL && this->optimal_path[i-1] != INSERTION_SYMBOL)) {
+                ++number_gaps;
+            }
+        }
+        return number_gaps;
     }
 } alignment_statistics;
 

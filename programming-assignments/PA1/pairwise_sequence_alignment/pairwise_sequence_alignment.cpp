@@ -151,7 +151,6 @@ void pairwise_sequence_alignment::pairwise_global_sequence_alignment_affine_gap_
     pairwise_sequence_alignment::run_dynamic_programming_for_global_alignment(s1, s2, dp_table, m_a, m_i, h, g);
     pairwise_sequence_alignment::path_retrace_for_global_alignment(s1, s2, dp_table, stats);
     ofstream file("./sample_output.txt");
-    stats.dump_alignment_to_file(file, s1, s2, 60);
 }
 
 void pairwise_sequence_alignment::pairwise_local_sequence_alignment_affine_gap_penalty(const string& s1, const string& s2, const int m_a, const int m_i, const int h, const int g, alignment_statistics& stats) {
