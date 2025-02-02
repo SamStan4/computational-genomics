@@ -31,7 +31,14 @@ class application_wrapper
 
             sequence_alignment alignment(sequence_file_path, parameter_config_file_path);
 
-            alignment.print_parameters_cout();
+            if (alignment_flag == 0) // global alignment
+            {
+                alignment.global_alignment_affine_gap_penalty("./sample_output.txt");
+            }
+            else if (alignment_flag == 1) // local alignment
+            {
+
+            }
         }
 
     private:

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "./../globals-imports/globals_includes.hpp"
+#include "./dp_cell.hpp"
+#include "./global_alignment_statistics.hpp"
 
 class sequence_alignment
 {
@@ -25,12 +27,17 @@ class sequence_alignment
 
         void global_alignment_affine_gap_penalty(const string& output_file_path)
         {
+            global_alignment_statistics stats;
 
+            this->run_global_alignment(stats);
+
+            ofstream file(output_file_path);
+
+            stats.dump_stats_to_file(file, this->s1_name, this->s2_name, this->s1, this->s2);
         }
 
         void local_alignment_affine_gap_penalty(const string& output_file_path)
         {
-
         }
 
         void print_sequences_cout(void)
@@ -160,5 +167,99 @@ class sequence_alignment
             this->mismatch = key_value["mismatch"];
             this->opening_gap = key_value["h"];
             this->extension_gap = key_value["g"];
+        }
+
+        void run_global_alignment(global_alignment_statistics& stats) const
+        {
+            static const int negative_infinity_int = numeric_limits<int>::min();
+            static const signed long long negative_infinity_sll = (signed long long)numeric_limits<int>::min();
+
+            if (this->s1.empty() || this->s2.empty())
+            {
+                return;
+            }
+
+            vector<vector<dp_cell>> dp_table(this->s1.size() + 1, vector<dp_cell>(this->s2.size() + 1));
+
+            const int n = (int)dp_table.size(), m = (int)dp_table[0].size();
+
+            dp_table[0][0].d_score = 0;
+            dp_table[0][0].i_score = 0;
+            dp_table[0][0].s_score = 0;
+
+            for (int i = 1; i < n; ++i) {
+                dp_table[i][0].s_score = negative_infinity_int;
+                dp_table[i][0].d_score = this->opening_gap + (i * this->extension_gap);
+                dp_table[i][0].i_score = negative_infinity_int;
+            }
+            for (int j = 1; j < m; ++j) {
+                dp_table[0][j].s_score = negative_infinity_int;
+                dp_table[0][j].d_score = negative_infinity_int;
+                dp_table[0][j].i_score = this->opening_gap + (j * this->extension_gap);
+            }
+
+            const signed long long
+                m_a_sll = (signed long long)this->match,
+                m_i_sll = (signed long long)this->mismatch,
+                h_sll = (signed long long)this->opening_gap,
+                g_sll = (signed long long)this->extension_gap;
+
+            for (int i = 1; i < n; ++i) {
+                for (int j = 1; j < m; ++j) {
+                    // Handle s_score
+                    dp_table[i][j].s_score = (int)max(negative_infinity_sll, max((signed long long)max(dp_table[i-1][j-1].s_score, dp_table[i-1][j-1].d_score), (signed long long)dp_table[i-1][j-1].i_score) + (this->s1[i-1] == this->s2[j-1] ? m_a_sll : m_i_sll));
+                    // Handle d_score
+                    dp_table[i][j].d_score = (int)max(negative_infinity_sll, max((signed long long)max(dp_table[i-1][j].i_score, dp_table[i-1][j].s_score) + h_sll + g_sll, (signed long long)dp_table[i-1][j].d_score + g_sll));
+                    // Handle i_score
+                    dp_table[i][j].i_score = (int)max(negative_infinity_sll, max((signed long long)max(dp_table[i][j-1].s_score, dp_table[i][j-1].d_score) + h_sll + g_sll, (signed long long)dp_table[i][j-1].i_score + g_sll));
+                }
+            }
+
+            string path_retrace;
+
+            int i = n - 1, j = m - 1;
+
+            while (i > 0 && j > 0)
+            {
+                switch (dp_table[i][j].get_max_score())
+                {
+                    case S_VALUE_KEY:
+                        if (this->s1[i-1] == this->s2[j-1])
+                        {
+                            path_retrace.push_back(MATCH_SYMBOL);
+                        }
+                        else
+                        {
+                            path_retrace.push_back(MISMATCH_SYMBOL);
+                        }
+                        --i;
+                        --j;
+                    break;
+                    case D_VALUE_KEY:
+                        path_retrace.push_back(DELETION_SYMBOL);
+                        --i;
+                    break;
+                    case I_VALUE_KEY:
+                        path_retrace.push_back(INSERTION_SYMBOL);
+                        --j;
+                    break;
+                }
+            }
+
+            while (i > 0)
+            {
+                path_retrace.push_back(DELETION_SYMBOL);
+                --i;
+            }
+
+            while (j > 0)
+            {
+                path_retrace.push_back(INSERTION_SYMBOL);
+                --j;
+            }
+
+            reverse(path_retrace.begin(), path_retrace.end());
+
+            stats.set_optimal_path(path_retrace);
         }
 };
