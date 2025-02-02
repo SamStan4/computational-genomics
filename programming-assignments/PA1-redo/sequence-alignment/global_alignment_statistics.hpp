@@ -100,7 +100,7 @@ class global_alignment_statistics
 
         string optimal_path;
 
-        void dump_alignment_visual_to_file(ofstream& file, const string& s1, const string& s2, const int gene_print_width = 60) const
+        void dump_alignment_visual_to_file(ofstream& file, const string& s1, const string& s2, const int gene_print_width = OUTPUT_WIDTH_FORMAT) const
         {
             const int n = this->optimal_path.size();
 
@@ -110,7 +110,7 @@ class global_alignment_statistics
 
                 file << left << setw(5) << "s1" << setw(10) << j + 1;
 
-                for (l = 0, m = i; m < this->optimal_path.size() && l < gene_print_width; ++l, ++m)
+                for (l = 0, m = i; m < n && l < gene_print_width; ++l, ++m)
                 {
                     switch (this->optimal_path[m])
                     {
@@ -127,7 +127,7 @@ class global_alignment_statistics
 
                 file << left << setw(3) << "" << j << endl << setw(15) << "";
 
-                for (l = 0, m = i; m < this->optimal_path.size() && l < gene_print_width; ++l, ++m)
+                for (l = 0, m = i; m < n && l < gene_print_width; ++l, ++m)
                 {
                     switch (this->optimal_path[m])
                     {
@@ -144,7 +144,7 @@ class global_alignment_statistics
 
                 file << endl << left << setw(5) << "s2" << setw(10) << k + 1;
 
-                for (l = 0, m = i; m < this->optimal_path.size() && l < gene_print_width; ++l, ++m)
+                for (l = 0, m = i; m < n && l < gene_print_width; ++l, ++m)
                 {
                     switch (this->optimal_path[m])
                     {
@@ -163,7 +163,7 @@ class global_alignment_statistics
             }
         }
 
-        void dump_input_header_to_file(ofstream& file, const string& s1_name, const string& s2_name, const string& s1, const string& s2, const int gene_print_width = 60) const
+        void dump_input_header_to_file(ofstream& file, const string& s1_name, const string& s2_name, const string& s1, const string& s2, const int gene_print_width = OUTPUT_WIDTH_FORMAT) const
         {
             file
                 << "INPUT:" << endl << "******" << endl << endl
@@ -207,7 +207,7 @@ class global_alignment_statistics
                 << " Identites = " << this->number_matches << "/" << this->optimal_path.size() << " (" << this->get_identity_percentage() << "%), Gaps = " << this->number_gap_extensions << "/" << this->optimal_path.size() << " (" << this->get_gap_percentage() << "%)";
         }
 
-        void dump_results_to_file(ofstream& file, const string& s1_name, const string& s2_name, const string& s1, const string& s2, const int match, const int mismatch, const int opening_gap, const int extension_gap, const int gene_print_width = 60) const
+        void dump_results_to_file(ofstream& file, const string& s1_name, const string& s2_name, const string& s1, const string& s2, const int match, const int mismatch, const int opening_gap, const int extension_gap, const int gene_print_width = OUTPUT_WIDTH_FORMAT) const
         {
             file 
                 << "OUTPUT:" << endl << "******" << endl << endl

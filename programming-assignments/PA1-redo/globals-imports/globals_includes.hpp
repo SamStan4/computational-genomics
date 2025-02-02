@@ -39,7 +39,7 @@
 #define WHITE        "\033[37m"
 
 // Format for output file
-#define OUTPUT_WIDTH_FORMAT  60
+#define OUTPUT_WIDTH_FORMAT  120
 
 // Cause I dont want to type out the individual using statements
 using namespace std;
