@@ -33,7 +33,7 @@ class sequence_alignment
 
             ofstream file(output_file_path);
 
-            stats.dump_stats_to_file(file, this->s1_name, this->s2_name, this->s1, this->s2);
+            stats.dump_stats_to_file(file, this->s1_name, this->s2_name, this->s1, this->s2, this->match, this->mismatch, this->opening_gap, this->extension_gap);
         }
 
         void local_alignment_affine_gap_penalty(const string& output_file_path)
@@ -261,5 +261,7 @@ class sequence_alignment
             reverse(path_retrace.begin(), path_retrace.end());
 
             stats.set_optimal_path(path_retrace);
+
+            stats.set_alignment_score(dp_table.back().back().get_max_score_value());
         }
 };
