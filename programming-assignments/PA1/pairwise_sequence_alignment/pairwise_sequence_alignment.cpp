@@ -126,7 +126,6 @@ void pairwise_sequence_alignment::path_retrace_for_local_alignment(const string&
                 dp_table[i][j].i_score = (int)max(negative_infinity, max((signed long long)max(dp_table[i][j-1].s_score, dp_table[i][j-1].d_score) + h_sll + g_sll, (signed long long)dp_table[i][j-1].i_score + g_sll));
             }
         }
-        pairwise_sequence_alignment::dump_dp_table("./output.csv", dp_table);
     }
 
     void pairwise_sequence_alignment::run_dynamic_programming_for_local_alignment(const string& s1, const string& s2, vector<vector<dp_cell>>& dp_table, const int m_a, const int m_i, const int h, const int g) {
@@ -151,7 +150,8 @@ void pairwise_sequence_alignment::pairwise_global_sequence_alignment_affine_gap_
     pairwise_sequence_alignment::run_dynamic_programming_for_global_alignment(s1, s2, dp_table, m_a, m_i, h, g);
     pairwise_sequence_alignment::path_retrace_for_global_alignment(s1, s2, dp_table, stats);
     ofstream file("./sample_output.txt");
-    stats.dump_alignment_visual_to_file(file, s1, s2, 60);
+    stats.optimal_alignment_score = max(max(dp_table.back().back().d_score, dp_table.back().back().s_score), dp_table.back().back().i_score);
+    stats.dump_global_alignment_stats_to_file(file, s1, s2, m_a, m_i, h, g, OUTPUT_FILE_GENE_WIDTH);
 }
 
 void pairwise_sequence_alignment::pairwise_local_sequence_alignment_affine_gap_penalty(const string& s1, const string& s2, const int m_a, const int m_i, const int h, const int g, alignment_statistics& stats) {
