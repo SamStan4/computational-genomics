@@ -286,6 +286,6 @@ bool SequenceAlignment::AlignSequences(string& sequenceFilePath, const string& p
     SequenceAlignment::AllocateAndInitializeDpTable(stats, params, dpTable);
     SequenceAlignment::ExecuteAlignmentDp(stats, params, dpTable);
     SequenceAlignment::PathRetrace(stats, dpTable);
-    stats.DumpToFile("THING.txt");
+    stats.DumpToFile("./program-output/output.txt");
     return true;
 }
