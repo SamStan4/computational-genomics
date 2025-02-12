@@ -3,10 +3,6 @@
 
 #include "./../imports.hpp"
 
-#define S_VALUE_KEY 's'
-#define D_VALUE_KEY 'd'
-#define I_VALUE_KEY 'i'
-
 struct DpCell {
 public:
     int32_t sScore;

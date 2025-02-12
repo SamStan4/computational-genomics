@@ -137,7 +137,6 @@ void SequenceAlignment::ExecuteAlignmentDp(const AlignmentStats& stats, const Al
         for (size_t j = 1; j < colSize; ++j) {
             dpTable[i][j].dScore = (int32_t)max(minVal, max((int64_t)max(dpTable[i-1][j].iScore, dpTable[i-1][j].sScore) + h + g, (int64_t)dpTable[i-1][j].dScore + g));
             dpTable[i][j].sScore = (int32_t)max(minVal, (int64_t)max(max(dpTable[i-1][j-1].sScore, dpTable[i-1][j-1].dScore), dpTable[i-1][j-1].iScore) + (s1[i-1] == s2[j-1] ? m_a : m_i));
-            // dpTable[i][j].sScore = (int32_t)max(minVal, max((int64_t)max(dpTable[i-1][j-1].sScore, dpTable[i-1][j-1].dScore), (int64_t)dpTable[i-1][j-1].iScore + (s1[i-1] == s2[j-1] ? m_a : m_i)));
             dpTable[i][j].iScore = (int32_t)max(minVal, max((int64_t)max(dpTable[i][j-1].dScore, dpTable[i][j-1].sScore) + h + g, (int64_t)dpTable[i][j-1].iScore + g));
         }
     }
@@ -161,6 +160,57 @@ void SequenceAlignment::DumpDpTableToFile(const char* filePath, vector<vector<Dp
     fileStream.close();
 }
 
+void SequenceAlignment::PathRetrace(AlignmentStats& stats, const AlignmentParameters& params, const vector<vector<DpCell>>& dpTable) {
+    if (stats.GetAlignmentFlag() == 0)
+        SequenceAlignment::GlobalPathRetrace(stats, params, dpTable);
+    else
+        SequenceAlignment::LocalPathRetrace(stats, params, dpTable);
+}
+
+void SequenceAlignment::GlobalPathRetrace(AlignmentStats& stats, const AlignmentParameters& params, const vector<vector<DpCell>>& dpTable) {
+    const size_t rowSize = dpTable.size();
+    if (rowSize == 0) return;
+    const size_t colSize = dpTable[0].size();
+    size_t i = rowSize - 1;
+    size_t j = colSize - 1;
+    const string& s1 = stats.GetS1ConstRef();
+    const string& s2 = stats.GetS2ConstRef();
+    string& pathRetrace = stats.GetAlignmentPathRef();
+    while (i > 0 && j > 0) {
+        switch (dpTable[i][j].GetMaxScoreKey()) {
+            case S_VALUE_KEY:
+                if (s1[i-1] == s2[j-1])
+                    pathRetrace.push_back(MATCH_SYMBOL);
+                else
+                    pathRetrace.push_back(MISMATCH_SYMBOL);
+                --i;
+                --j;
+            break;
+            case D_VALUE_KEY:
+                pathRetrace.push_back(DELETION_SYMBOL);
+                --i;
+            break;
+            case I_VALUE_KEY:
+                pathRetrace.push_back(INSERTION_SYMBOL);
+            break;
+        }
+    }
+    while (i-- > 0)
+        pathRetrace.push_back(DELETION_SYMBOL);
+    while (j-- > 0)
+        pathRetrace.push_back(INSERTION_SYMBOL);
+    reverse(pathRetrace.begin(), pathRetrace.end());
+    stats.SetS1Start(0);
+    stats.SetS2Start(0);
+    stats.SetS1End(s1.size() - 1);
+    stats.SetS2End(s2.size() - 1);
+    stats.CalculateStats();
+    stats.SetAlignmentScore(dpTable.back().back().GetMaxScore());
+}
+
+void SequenceAlignment::LocalPathRetrace(AlignmentStats& stats, const AlignmentParameters& params, const vector<vector<DpCell>>& dpTable) {
+}
+
 bool SequenceAlignment::AlignSequences(AlignmentStats& stats, string& sequenceFilePath, const string& parameterFilePath, const int32_t alignmentFlag) {
     if (!SequenceAlignment::ValidateFilesExist(sequenceFilePath, parameterFilePath))
         return false;
@@ -170,10 +220,16 @@ bool SequenceAlignment::AlignSequences(AlignmentStats& stats, string& sequenceFi
     if (!SequenceAlignment::LoadAlignmentParameters(parameterFilePath, params))
         return false;
     params.SetAlignmentFlag(alignmentFlag);
+    stats.SetAlignmentFlag(alignmentFlag);
+    stats.SetMatchScore(params.GetMatchScore());
+    stats.SetMismatchScore(params.GetMismatchScore());
+    stats.SetOpeningGapScore(params.GetOpeningGapScore());
+    stats.SetGapExtensionScore(params.GetGapExtensionScore());
     vector<vector<DpCell>> dpTable;
     SequenceAlignment::AllocateAndInitializeDpTable(stats, params, dpTable);
     SequenceAlignment::ExecuteAlignmentDp(stats, params, dpTable);
-    SequenceAlignment::DumpDpTableToFile("THING.txt", dpTable);
-    // cout << "made it here" << endl;
+    SequenceAlignment::PathRetrace(stats, params, dpTable);
+    stats.DumpToFile("THING.txt");
+    cout << "made it here" << endl;
     return true;
 }

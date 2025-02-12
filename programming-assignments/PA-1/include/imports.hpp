@@ -30,7 +30,7 @@
 #define CYAN         "\033[36m"
 #define WHITE        "\033[37m"
 
-#define OUTPUT_WIDTH_FORMAT  120
+#define OUTPUT_WIDTH_FORMAT  60
 
 using namespace std;
 
