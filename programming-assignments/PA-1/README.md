@@ -4,4 +4,8 @@
 ```bash
 make
 ```
-
+## To Clean:
+```bash
+make clean
+```
+##
