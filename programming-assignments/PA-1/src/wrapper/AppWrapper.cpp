@@ -4,14 +4,14 @@
 
 AppWrapper::AppWrapper() {}
 
-bool AppWrapper::ParseArgs(const int argumentCount, const char* const* argumentVector, string& sequenceFilePath, string& parameterConfigFilePath, int& alignmentFlag) {
+bool AppWrapper::ParseArgs(const int argumentCount, const char* const* argumentVector, string& sequenceFilePath, string& parameterConfigFilePath, int32_t& alignmentFlag) {
     try {
         if (argumentCount != 4) {
             return false;
         }
         sequenceFilePath = argumentVector[1];
         parameterConfigFilePath = argumentVector[3];
-        alignmentFlag = stoi(argumentVector[2]);
+        alignmentFlag = (int32_t)stoi(argumentVector[2]);
         return alignmentFlag == 0 || alignmentFlag == 1;
     } catch (...) {
         return false;
@@ -32,7 +32,6 @@ void AppWrapper::Run(const int argumentCount, const char* const* argumentVector)
         return;
     }
     AlignmentStats stats;
-    if (!SequenceAlignment::AlignSequences(stats, sequenceFilePath, parameterConfigFilePath, alignmentFlag)) {
+    if (!SequenceAlignment::AlignSequences(stats, sequenceFilePath, parameterConfigFilePath, alignmentFlag))
         return;
-    }
 }

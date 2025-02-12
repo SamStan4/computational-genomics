@@ -13,10 +13,127 @@ bool SequenceAlignment::ValidateFilesExist(const string& sequenceFilePath, const
     return result;
 }
 
-bool SequenceAlignment::AlignSequences(AlignmentStats& stats, string& sequenceFilePath, const string& parameterFilePath, const int alignmentFlag) {
-    if (!SequenceAlignment::ValidateFilesExist(sequenceFilePath, parameterFilePath)) {
+bool SequenceAlignment::LoadGeneticSequences(const string& sequenceFilePath, string& s1, string& s2, string& s1Name, string& s2Name) {
+    ifstream fileStream(sequenceFilePath);
+    if (!fileStream.is_open()) {
+        cerr << "Error opening " << sequenceFilePath << endl;
         return false;
     }
-    cout << "here nowe" << endl;
-    return false;
+    string readBuffer, * curSequence = nullptr;
+    while (getline(fileStream, readBuffer)) {
+        if (readBuffer.empty())
+            continue;
+        if (readBuffer[0] == '>') {
+            if (curSequence == nullptr) {
+                s1Name = readBuffer.substr(1);
+                curSequence = &s1;
+            } else {
+                s2Name = readBuffer.substr(1);
+                curSequence = & s2;
+            }
+        } else if (curSequence)
+            *curSequence += readBuffer;
+    }
+    return true;
+}
+
+bool SequenceAlignment::LoadAlignmentParameters(const string& alignmentParameterPath, AlignmentParameters& params) {
+    ifstream fileStream(alignmentParameterPath);
+    if (!fileStream.is_open()) {
+        cerr << "Error opening " << alignmentParameterPath << endl;
+        return false;
+    }
+    unordered_map<string, int32_t> hashMap = {
+        {"match", 0},
+        {"mismatch", 0},
+        {"g", 0},
+        {"h", 0}  
+    };
+    string readBuffer;
+    int8_t numRead = 0;
+    while (getline(fileStream, readBuffer)) {
+        if (readBuffer.empty())
+            continue;
+        stringstream readStream(readBuffer);
+        string key;
+        string value;
+        readStream >> key >> value;
+        if (hashMap.find(key) != hashMap.end()) {
+            try {
+                hashMap[key] = (int32_t)stoi(value);
+                ++numRead;
+            } catch (...) {
+                cerr << "Error while parsing" << alignmentParameterPath << endl;
+                return false;
+            }
+        }
+    }
+    params.SetMatchScore(hashMap["match"]);
+    params.SetMismatchScore(hashMap["mismatch"]);
+    params.SetGapExtensionScore(hashMap["g"]);
+    params.SetOpeningGapScore(hashMap["h"]);
+    return numRead == 4;
+}
+
+void SequenceAlignment::AllocateAndInitializeDpTable(const AlignmentStats& stats, const AlignmentParameters& params, vector<vector<DpCell>>& dpTable) {
+    const size_t s1Size = stats.GetS1ConstRef().size();
+    const size_t s2Size = stats.GetS2ConstRef().size();
+    dpTable.assign(s1Size + 1, vector<DpCell>(s2Size + 1));
+    if (stats.GetAlignmentFlag() == 0)
+        SequenceAlignment::InitializeDpTableGlobal(params, dpTable);
+    else
+        SequenceAlignment::InitializeDpTableLocal(dpTable);
+}
+
+void SequenceAlignment::InitializeDpTableGlobal(const AlignmentParameters& params, vector<vector<DpCell>>& dpTable) {
+    static const int32_t negativeInfinity = numeric_limits<int32_t>::min();
+    const size_t rowSize = dpTable.size();
+    if (rowSize == 0) return;
+    const size_t colSize = dpTable[0].size();
+    if (colSize == 0) return;
+    const int32_t openingGapScore = params.GetOpeningGapScore();
+    const int32_t gapExtensionScore = params.GetGapExtensionScore();
+    dpTable[0][0].dScore = 0;
+    dpTable[0][0].iScore = 0;
+    dpTable[0][0].sScore = 0;
+    for (size_t i = 1; i < rowSize; ++i) {
+        dpTable[i][0].dScore = openingGapScore + (i * gapExtensionScore);
+        dpTable[i][0].sScore = negativeInfinity;
+        dpTable[i][0].iScore = negativeInfinity;
+    }
+    for (size_t j = 0; j < colSize; ++j) {
+        dpTable[0][j].dScore = negativeInfinity;
+        dpTable[0][j].sScore = negativeInfinity;
+        dpTable[0][j].iScore = openingGapScore + (j * gapExtensionScore);
+    }
+}
+
+void SequenceAlignment::InitializeDpTableLocal(vector<vector<DpCell>>& dpTable) {
+    const size_t rowSize = dpTable.size();
+    const size_t colSize = dpTable[0].size();
+    for (size_t i = 0; i < rowSize; ++i) {
+        dpTable[i][0].dScore = 0;
+        dpTable[i][0].sScore = 0;
+        dpTable[i][0].iScore = 0;
+    }
+    for (size_t j = 1; j < colSize; ++j) {
+        dpTable[0][j].dScore = 0;
+        dpTable[0][j].sScore = 0;
+        dpTable[0][j].iScore = 0;
+    }
+}
+
+bool SequenceAlignment::AlignSequences(AlignmentStats& stats, string& sequenceFilePath, const string& parameterFilePath, const int32_t alignmentFlag) {
+    if (!SequenceAlignment::ValidateFilesExist(sequenceFilePath, parameterFilePath))
+        return false;
+    if (!SequenceAlignment::LoadGeneticSequences(sequenceFilePath, stats.GetS1Ref(), stats.GetS2Ref(), stats.GetS1NameRef(), stats.GetS2NameRef()))
+        return false;
+    AlignmentParameters params;
+    if (!SequenceAlignment::LoadAlignmentParameters(parameterFilePath, params))
+        return false;
+    params.SetAlignmentFlag(alignmentFlag);
+    vector<vector<DpCell>> dpTable;
+    SequenceAlignment::AllocateAndInitializeDpTable(stats, params, dpTable);
+    cout << "made it here" << endl;
+    return true;
 }
