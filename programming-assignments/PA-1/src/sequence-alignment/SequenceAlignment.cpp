@@ -101,7 +101,7 @@ void SequenceAlignment::InitializeDpTableGlobal(const AlignmentParameters& param
         dpTable[i][0].sScore = negativeInfinity;
         dpTable[i][0].iScore = negativeInfinity;
     }
-    for (size_t j = 0; j < colSize; ++j) {
+    for (size_t j = 1; j < colSize; ++j) {
         dpTable[0][j].dScore = negativeInfinity;
         dpTable[0][j].sScore = negativeInfinity;
         dpTable[0][j].iScore = openingGapScore + (j * gapExtensionScore);
