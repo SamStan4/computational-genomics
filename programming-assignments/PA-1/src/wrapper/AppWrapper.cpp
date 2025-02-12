@@ -32,6 +32,6 @@ void AppWrapper::Run(const int argumentCount, const char* const* argumentVector)
         return;
     }
     AlignmentStats stats;
-    if (!SequenceAlignment::AlignSequences(stats, sequenceFilePath, parameterConfigFilePath, alignmentFlag))
+    if (!SequenceAlignment::AlignSequences(sequenceFilePath, parameterConfigFilePath, alignmentFlag))
         return;
 }

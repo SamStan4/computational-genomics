@@ -160,14 +160,14 @@ void SequenceAlignment::DumpDpTableToFile(const char* filePath, vector<vector<Dp
     fileStream.close();
 }
 
-void SequenceAlignment::PathRetrace(AlignmentStats& stats, const AlignmentParameters& params, const vector<vector<DpCell>>& dpTable) {
+void SequenceAlignment::PathRetrace(AlignmentStats& stats, const vector<vector<DpCell>>& dpTable) {
     if (stats.GetAlignmentFlag() == 0)
-        SequenceAlignment::GlobalPathRetrace(stats, params, dpTable);
+        SequenceAlignment::GlobalPathRetrace(stats, dpTable);
     else
-        SequenceAlignment::LocalPathRetrace(stats, params, dpTable);
+        SequenceAlignment::LocalPathRetrace(stats, dpTable);
 }
 
-void SequenceAlignment::GlobalPathRetrace(AlignmentStats& stats, const AlignmentParameters& params, const vector<vector<DpCell>>& dpTable) {
+void SequenceAlignment::GlobalPathRetrace(AlignmentStats& stats, const vector<vector<DpCell>>& dpTable) {
     const size_t rowSize = dpTable.size();
     if (rowSize == 0) return;
     const size_t colSize = dpTable[0].size();
@@ -195,10 +195,14 @@ void SequenceAlignment::GlobalPathRetrace(AlignmentStats& stats, const Alignment
             break;
         }
     }
-    while (i-- > 0)
+    while (i > 0) {
         pathRetrace.push_back(DELETION_SYMBOL);
-    while (j-- > 0)
+        --i;
+    }
+    while (j > 0) {
         pathRetrace.push_back(INSERTION_SYMBOL);
+        --j;
+    }
     reverse(pathRetrace.begin(), pathRetrace.end());
     stats.SetS1Start(0);
     stats.SetS2Start(0);
@@ -208,10 +212,61 @@ void SequenceAlignment::GlobalPathRetrace(AlignmentStats& stats, const Alignment
     stats.SetAlignmentScore(dpTable.back().back().GetMaxScore());
 }
 
-void SequenceAlignment::LocalPathRetrace(AlignmentStats& stats, const AlignmentParameters& params, const vector<vector<DpCell>>& dpTable) {
+void SequenceAlignment::LocalPathRetrace(AlignmentStats& stats, const vector<vector<DpCell>>& dpTable) {
+    const size_t rowSize = dpTable.size();
+    if (rowSize == 0) return;
+    const size_t colSize = dpTable[0].size();
+    size_t maxValRow = 0;
+    size_t maxValCol = 0;
+    int32_t maxVal = dpTable[0][0].GetMaxScore();
+    for (size_t i = 0; i < rowSize; ++i)
+        for (size_t j = 0; j < colSize; ++j) {
+            const int32_t maxCellValue = dpTable[i][j].GetMaxScore();
+            if (maxCellValue > maxVal) {
+                maxVal = maxCellValue;
+                maxValRow = i;
+                maxValCol = j;
+            }
+        }
+    stats.SetAlignmentScore(maxVal);
+    stats.SetS1End(maxValRow - 1);
+    stats.SetS2End(maxValCol - 1);
+    size_t i = maxValRow;
+    size_t j = maxValCol;
+    size_t prevI = i;
+    size_t prevJ = j;
+    string& pathRetrace = stats.GetAlignmentPathRef();
+    const string& s1 = stats.GetS1ConstRef();
+    const string& s2 = stats.GetS2ConstRef();
+    while (i > 0 && j > 0 && !dpTable[i][j].IsAllZero()) {
+        prevI = i;
+        prevJ = j;
+        switch (dpTable[i][j].GetMaxScoreKey()) {
+            case S_VALUE_KEY:
+                if (s1[i-1] == s2[j-1])
+                    pathRetrace.push_back(MATCH_SYMBOL);
+                else
+                    pathRetrace.push_back(MISMATCH_SYMBOL);
+                --i;
+                --j;
+            break;
+            case D_VALUE_KEY:
+                pathRetrace.push_back(DELETION_SYMBOL);
+                --i;
+            break;
+            case I_VALUE_KEY:
+                pathRetrace.push_back(INSERTION_SYMBOL);
+            break;
+        }
+    }
+    reverse(pathRetrace.begin(), pathRetrace.end());
+    stats.SetS1Start(prevI - 1);
+    stats.SetS2Start(prevJ - 1);
+    stats.CalculateStats();
 }
 
-bool SequenceAlignment::AlignSequences(AlignmentStats& stats, string& sequenceFilePath, const string& parameterFilePath, const int32_t alignmentFlag) {
+bool SequenceAlignment::AlignSequences(string& sequenceFilePath, const string& parameterFilePath, const int32_t alignmentFlag) {
+    AlignmentStats stats;
     if (!SequenceAlignment::ValidateFilesExist(sequenceFilePath, parameterFilePath))
         return false;
     if (!SequenceAlignment::LoadGeneticSequences(sequenceFilePath, stats.GetS1Ref(), stats.GetS2Ref(), stats.GetS1NameRef(), stats.GetS2NameRef()))
@@ -228,8 +283,7 @@ bool SequenceAlignment::AlignSequences(AlignmentStats& stats, string& sequenceFi
     vector<vector<DpCell>> dpTable;
     SequenceAlignment::AllocateAndInitializeDpTable(stats, params, dpTable);
     SequenceAlignment::ExecuteAlignmentDp(stats, params, dpTable);
-    SequenceAlignment::PathRetrace(stats, params, dpTable);
+    SequenceAlignment::PathRetrace(stats, dpTable);
     stats.DumpToFile("THING.txt");
-    cout << "made it here" << endl;
     return true;
 }

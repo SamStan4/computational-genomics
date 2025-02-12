@@ -31,3 +31,11 @@ run-known-sample-global: $(TARGET)
 		echo "Error: Executable $(TARGET) not found. Please build it first."; \
 		exit 1; \
 	fi
+
+run-known-sample-local: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) tests/input/KnownSample.fasta 1 tests/config/parameters.config; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi

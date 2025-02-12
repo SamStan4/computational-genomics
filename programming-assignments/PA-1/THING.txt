@@ -32,7 +32,7 @@ s2   107       CCGAT   111
 
 Report:
 
-Global optimal score = 55
+Local optimal score = 55
 
 Number of matches = 105, mismatches = 6, opening gaps = 2, gap extensions = 14
 
