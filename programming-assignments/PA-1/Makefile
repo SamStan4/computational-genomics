@@ -39,3 +39,35 @@ run-known-sample-local: $(TARGET)
 		echo "Error: Executable $(TARGET) not found. Please build it first."; \
 		exit 1; \
 	fi
+
+run-BRCA2-global: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) tests/input/Human-Mouse-BRCA2-cds.fasta 0 tests/config/parameters.config; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+run-BRCA2-local: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) tests/input/Human-Mouse-BRCA2-cds.fasta 1 tests/config/parameters.config; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+run-colorblindness-global: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) tests/input/Opsin1_colorblindness_gene.fasta 0 tests/config/parameters.config; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+run-colorblindness-local: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) tests/input/Opsin1_colorblindness_gene.fasta 1 tests/config/parameters.config; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi

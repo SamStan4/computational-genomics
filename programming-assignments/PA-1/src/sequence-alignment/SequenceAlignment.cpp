@@ -192,6 +192,7 @@ void SequenceAlignment::GlobalPathRetrace(AlignmentStats& stats, const vector<ve
             break;
             case I_VALUE_KEY:
                 pathRetrace.push_back(INSERTION_SYMBOL);
+                --j;
             break;
         }
     }
@@ -256,6 +257,7 @@ void SequenceAlignment::LocalPathRetrace(AlignmentStats& stats, const vector<vec
             break;
             case I_VALUE_KEY:
                 pathRetrace.push_back(INSERTION_SYMBOL);
+                --j;
             break;
         }
     }
