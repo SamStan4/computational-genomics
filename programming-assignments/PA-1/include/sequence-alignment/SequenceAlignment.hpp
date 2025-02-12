@@ -14,6 +14,8 @@ private:
     static void AllocateAndInitializeDpTable(const AlignmentStats& stats, const AlignmentParameters& params, vector<vector<DpCell>>& dpTable);
     static void InitializeDpTableGlobal(const AlignmentParameters& params, vector<vector<DpCell>>& dpTable);
     static void InitializeDpTableLocal(vector<vector<DpCell>>& dpTable);
+    static void ExecuteAlignmentDp(const AlignmentStats& stats, const AlignmentParameters& params, vector<vector<DpCell>>& dpTable);
+    static void DumpDpTableToFile(const char* filePath, vector<vector<DpCell>>& dpTable);
 public:
     static bool AlignSequences(AlignmentStats& stats, string& sequenceFilePath, const string& parameterFilePath, const int32_t alignmentFlag);
 };

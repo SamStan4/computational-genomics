@@ -15,6 +15,7 @@ public:
     DpCell(const int32_t newSScore = 0, const int32_t newDScore = 0, const int32_t newIScore = 0);
     char GetMaxScoreKey(void) const;
     int32_t GetMaxScore(void) const;
+    bool IsAllZero(void) const;
 };
 
 #endif

@@ -29,7 +29,6 @@ void AlignmentParameters::SetAlignmentFlag(const int32_t newAlignmentFlag) {
     this->alignmentFlag = newAlignmentFlag;
 }
 
-
 int32_t AlignmentParameters::GetMatchScore(void) const {
     return this->matchScore;
 }

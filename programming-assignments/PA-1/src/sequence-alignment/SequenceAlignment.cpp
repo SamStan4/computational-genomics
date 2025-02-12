@@ -123,6 +123,44 @@ void SequenceAlignment::InitializeDpTableLocal(vector<vector<DpCell>>& dpTable) 
     }
 }
 
+void SequenceAlignment::ExecuteAlignmentDp(const AlignmentStats& stats, const AlignmentParameters& params, vector<vector<DpCell>>& dpTable) {
+    const int64_t minVal = stats.GetAlignmentFlag() == 0 ? (int32_t)numeric_limits<int32_t>::min() : 0;
+    const int64_t m_a = (int64_t)params.GetMatchScore();
+    const int64_t m_i = (int64_t)params.GetMismatchScore();
+    const int64_t h = (int64_t)params.GetOpeningGapScore();
+    const int64_t g = (int64_t)params.GetGapExtensionScore();
+    const size_t rowSize = dpTable.size();
+    const size_t colSize = dpTable[0].size();
+    const string& s1 = stats.GetS1ConstRef();
+    const string& s2 = stats.GetS2ConstRef();
+    for (size_t i = 1; i < rowSize; ++i) {
+        for (size_t j = 1; j < colSize; ++j) {
+            dpTable[i][j].dScore = (int32_t)max(minVal, max((int64_t)max(dpTable[i-1][j].iScore, dpTable[i-1][j].sScore) + h + g, (int64_t)dpTable[i-1][j].dScore + g));
+            dpTable[i][j].sScore = (int32_t)max(minVal, (int64_t)max(max(dpTable[i-1][j-1].sScore, dpTable[i-1][j-1].dScore), dpTable[i-1][j-1].iScore) + (s1[i-1] == s2[j-1] ? m_a : m_i));
+            // dpTable[i][j].sScore = (int32_t)max(minVal, max((int64_t)max(dpTable[i-1][j-1].sScore, dpTable[i-1][j-1].dScore), (int64_t)dpTable[i-1][j-1].iScore + (s1[i-1] == s2[j-1] ? m_a : m_i)));
+            dpTable[i][j].iScore = (int32_t)max(minVal, max((int64_t)max(dpTable[i][j-1].dScore, dpTable[i][j-1].sScore) + h + g, (int64_t)dpTable[i][j-1].iScore + g));
+        }
+    }
+}
+
+void SequenceAlignment::DumpDpTableToFile(const char* filePath, vector<vector<DpCell>>& dpTable) {
+    ofstream fileStream(filePath);
+    if (!fileStream.is_open()) return;
+    const size_t rowSize = dpTable.size();
+    if (rowSize == 0) {
+        fileStream.close();
+        return;
+    }
+    const size_t colSize = dpTable[0].size();
+    for (size_t i = 0; i < rowSize; ++i) {
+        for (size_t j = 0; j < colSize; ++j) {
+            fileStream << "(" << dpTable[i][j].sScore << ", " << dpTable[i][j].dScore << ", " << dpTable[i][j].iScore << ") ";
+        }
+        fileStream << endl;
+    }
+    fileStream.close();
+}
+
 bool SequenceAlignment::AlignSequences(AlignmentStats& stats, string& sequenceFilePath, const string& parameterFilePath, const int32_t alignmentFlag) {
     if (!SequenceAlignment::ValidateFilesExist(sequenceFilePath, parameterFilePath))
         return false;
@@ -134,6 +172,8 @@ bool SequenceAlignment::AlignSequences(AlignmentStats& stats, string& sequenceFi
     params.SetAlignmentFlag(alignmentFlag);
     vector<vector<DpCell>> dpTable;
     SequenceAlignment::AllocateAndInitializeDpTable(stats, params, dpTable);
-    cout << "made it here" << endl;
+    SequenceAlignment::ExecuteAlignmentDp(stats, params, dpTable);
+    SequenceAlignment::DumpDpTableToFile("THING.txt", dpTable);
+    // cout << "made it here" << endl;
     return true;
 }
