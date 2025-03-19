@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "limits": "cpp",
-        "iosfwd": "cpp",
-        "ostream": "cpp"
-    }
-}
