@@ -1,1 +1,0 @@
-#include "../include/suffix_tree_node.hpp"

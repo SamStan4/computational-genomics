@@ -1,11 +1,4 @@
-#ifndef FILE_UTILS_HPP
-#define FILE_UTILS_HPP
-
-#include <string>
-#include <fstream>
-#include <unordered_set>
-#include <algorithm>
-#include <cctype>
+#include "./../../include/utils/file_utils.hpp"
 
 namespace file_utils {
     bool load_one_gene(const char* file_path, std::string& out_string, std::string& out_string_name) {
@@ -84,5 +77,3 @@ namespace file_utils {
         return true;
     }
 }
-
-#endif

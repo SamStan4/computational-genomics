@@ -26,7 +26,7 @@ clean:
 
 run: $(TARGET)
 	@if [ -f $(TARGET) ]; then \
-		./$(TARGET); \
+		./$(TARGET) tests/alphabets/gene_alphabet.txt tests/genes/Opsin1_colorblindness_gene.fasta; \
 	else \
 		echo "Error: Executable $(TARGET) not found. Please build it first."; \
 		exit 1; \

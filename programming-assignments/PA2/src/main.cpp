@@ -1,7 +1,7 @@
-#include <iostream>
 #include "../include/program-wrapper/program_wrapper.hpp"
 
 int main(int argc, char** argv) {
-    std::cout << "hello world\n";
+    program_wrapper& instance = program_wrapper::get_instance();
+    instance.run_program(argc, argv);
     return 0;
 }
