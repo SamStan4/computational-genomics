@@ -1,0 +1,58 @@
+#include "./suffix_tree.hpp"
+
+void suffix_tree::constructor_helper() {
+    for (i32 i = 0; i <= (i32)this->m_string.size(); ++i) {
+        this->find_path_and_insert(this->m_root_ptr, i);
+    }
+}
+
+void suffix_tree::destructor_helper(suffix_tree_node* cur_ptr) {
+    if (cur_ptr == nullptr) return;
+    this->destructor_helper(cur_ptr->m_sibling_ptr);
+    this->destructor_helper(cur_ptr->m_child_ptr);
+    delete cur_ptr;
+}
+
+void suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i32 position) {
+    i32 i = cur_ptr->m_start;
+    i32 j = cur_ptr->m_end;
+    i32 k = position;
+    for (; i < j && this->m_string[i] == this->m_string[k]; ++i, ++k);
+    if (i == j) {
+        suffix_tree_node* next_ptr = cur_ptr->get_pointer(this->m_string, k);
+        if (next_ptr == nullptr) {
+            suffix_tree_node* new_leaf_node_ptr = (suffix_tree_node*)new suffix_tree_node();
+            new_leaf_node_ptr->m_start = k;
+            new_leaf_node_ptr->m_end = (i32)this->m_string.size() + 1;
+            new_leaf_node_ptr->m_sibling_ptr = cur_ptr->m_child_ptr;
+            cur_ptr->m_child_ptr = new_leaf_node_ptr;
+        } else {
+            this->find_path_and_insert(next_ptr, k);
+        }
+    } else {
+        suffix_tree_node* new_internal_node_ptr = (suffix_tree_node*)new suffix_tree_node();
+        suffix_tree_node* new_leaf_node_ptr = (suffix_tree_node*)new suffix_tree_node();
+
+        new_internal_node_ptr->m_start = i;
+        new_internal_node_ptr->m_end = j;
+
+        new_leaf_node_ptr->m_start = k;
+        new_leaf_node_ptr->m_end = (i32)this->m_string.size() + 1;
+
+        new_internal_node_ptr->m_child_ptr = cur_ptr->m_child_ptr;
+        cur_ptr->m_child_ptr = new_internal_node_ptr;
+        cur_ptr->m_end = i;
+
+        new_internal_node_ptr->m_sibling_ptr = new_leaf_node_ptr;
+    }
+}
+
+suffix_tree::suffix_tree(const std::string& string, const std::string& alphabet)
+    : m_root_ptr(new suffix_tree_node), m_string(string), m_alphabet(alphabet) {
+    this->constructor_helper();
+}
+
+suffix_tree::~suffix_tree() {
+    this->destructor_helper(this->m_root_ptr);
+    this->m_root_ptr = nullptr;
+}

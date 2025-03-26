@@ -1,7 +1,9 @@
-#include "../include/program-wrapper/program_wrapper.hpp"
+#include "./wrapper/program_wrapper.hpp"
 
 int main(int argc, char** argv) {
-    program_wrapper& instance = program_wrapper::get_instance();
-    instance.run_program(argc, argv);
+    int my_arg_c = 3;
+    const char* my_arg_v[] = { "name", "inputs/alphabets/English_alphabet.txt", "inputs/genes/banana.txt" };
+    program_wrapper& app = program_wrapper::get_instance();
+    app.run_program(my_arg_c, my_arg_v);
     return 0;
 }

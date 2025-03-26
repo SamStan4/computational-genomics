@@ -1,6 +1,6 @@
-#include "./../../include/utils/file_utils.hpp"
+#include "./io_utils.hpp"
 
-namespace file_utils {
+namespace io_utils {
     bool load_one_gene(const char* file_path, std::string& out_string, std::string& out_string_name) {
         out_string.clear();
         out_string_name.clear();

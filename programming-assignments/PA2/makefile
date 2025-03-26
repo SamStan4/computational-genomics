@@ -6,10 +6,10 @@ OBJDIR    := obj
 BINDIR    := bin
 
 SOURCES   := $(shell find $(SRCDIR) -name '*.cpp')
-
 OBJECTS   := $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
 
-TARGET    := $(BINDIR)/app
+TARGET        := $(BINDIR)/app
+DEBUG_TARGET  := $(BINDIR)/app_debug
 
 all: $(TARGET)
 
@@ -26,8 +26,16 @@ clean:
 
 run: $(TARGET)
 	@if [ -f $(TARGET) ]; then \
-		./$(TARGET) tests/alphabets/gene_alphabet.txt tests/genes/Opsin1_colorblindness_gene.fasta; \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Opsin1_colorblindness_gene.fasta; \
 	else \
 		echo "Error: Executable $(TARGET) not found. Please build it first."; \
 		exit 1; \
 	fi
+
+# Debug build
+debug: CXXFLAGS += -g -O0
+debug: $(DEBUG_TARGET)
+
+$(DEBUG_TARGET): $(OBJECTS)
+	@mkdir -p $(BINDIR)
+	$(CXX) $(OBJECTS) -o $(DEBUG_TARGET)
