@@ -15,4 +15,6 @@ using u32 = u_int32_t;
 
 #define DEBUG_HERE std::cout << "here" << std::endl
 
+#define PRINT_LINE(x) std::cout << x << std::endl
+
 #endif
