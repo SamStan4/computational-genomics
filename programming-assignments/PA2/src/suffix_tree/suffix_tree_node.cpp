@@ -18,3 +18,7 @@ suffix_tree_node* suffix_tree_node::get_pointer(const std::string& reference_str
     }
     return cur_ptr;
 }
+
+bool suffix_tree_node::is_leaf(void) {
+    return this->m_child_ptr == nullptr;
+}

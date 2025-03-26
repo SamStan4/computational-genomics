@@ -32,6 +32,14 @@ run: $(TARGET)
 		exit 1; \
 	fi
 
+run_banana: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/English_alphabet.txt inputs/genes/banana.txt; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
 # Debug build
 debug: CXXFLAGS += -g -O0
 debug: $(DEBUG_TARGET)

@@ -20,6 +20,7 @@ public:
     suffix_tree_node();
     ~suffix_tree_node();
     suffix_tree_node* get_pointer(const std::string& reference_string, i32 position);
+    bool is_leaf(void);
 };
 
 #endif

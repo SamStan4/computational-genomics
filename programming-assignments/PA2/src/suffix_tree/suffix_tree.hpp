@@ -11,11 +11,13 @@ private:
     std::string m_alphabet;
 
     void constructor_helper();
-    void destructor_helper(suffix_tree_node* cur_ptr);
-    void find_path_and_insert(suffix_tree_node* cur_ptr, i32 position);
+    void destructor_helper(suffix_tree_node*);
+    void find_path_and_insert(suffix_tree_node*, i32);
+    void print_tree_dfs_stdout_helper(suffix_tree_node*, std::string&);
 public:
-    suffix_tree(const std::string& string, const std::string& alphabet);
+    suffix_tree(const std::string&, const std::string&);
     ~suffix_tree();
+    void print_tree_dfs_stdout();
 };
 
 #endif

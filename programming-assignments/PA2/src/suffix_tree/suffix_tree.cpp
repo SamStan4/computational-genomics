@@ -56,3 +56,28 @@ suffix_tree::~suffix_tree() {
     this->destructor_helper(this->m_root_ptr);
     this->m_root_ptr = nullptr;
 }
+
+void suffix_tree::print_tree_dfs_stdout() {
+    std::string str;
+    this->print_tree_dfs_stdout_helper(this->m_root_ptr, str);
+}
+
+void suffix_tree::print_tree_dfs_stdout_helper(suffix_tree_node* parent_ptr, std::string& str) {
+    if (!parent_ptr) {
+        return;
+    } else if (parent_ptr->is_leaf()) {
+        std::cout << str << "$" << std::endl;
+        return;
+    }
+
+    const size_t origional_size = str.size();
+
+    suffix_tree_node* cur_ptr = parent_ptr->m_child_ptr;
+
+    while (cur_ptr) {
+        str += this->m_string.substr(cur_ptr->m_start, cur_ptr->m_end - cur_ptr->m_start);
+        this->print_tree_dfs_stdout_helper(cur_ptr, str);
+        str.resize(origional_size);
+        cur_ptr = cur_ptr->m_sibling_ptr;
+    }
+}
