@@ -1,8 +1,18 @@
 #include "./suffix_tree.hpp"
 
 void suffix_tree::constructor_helper() {
+    // Hot pointer is the most recently created leaf node in the tree
+    suffix_tree_node* hot_ptr = this->m_root_ptr;
     for (i32 i = 0; i <= (i32)this->m_string.size(); ++i) {
-        this->find_path_and_insert(this->m_root_ptr, i, 0);
+        // this->find_path_and_insert(this->m_root_ptr, i, 0, hot_ptr);
+        suffix_tree_node* suffix_link = hot_ptr->m_parent_ptr->m_suffix_ptr;
+        if (suffix_link) {
+            // case 1
+            this->find_path_and_insert(suffix_link, i + suffix_link->m_depth, suffix_link->m_depth, hot_ptr);
+        } else {
+            // case 2
+            this->find_path_and_insert(this->m_root_ptr, i, 0, hot_ptr);
+        }
     }
 }
 
@@ -13,7 +23,7 @@ void suffix_tree::destructor_helper(suffix_tree_node* cur_ptr) {
     delete cur_ptr;
 }
 
-void suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i32 position, i32 depth) {
+void suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i32 position, i32 depth, suffix_tree_node*& hot_ptr) {
     i32 i = cur_ptr->m_start;
     i32 j = cur_ptr->m_end;
     i32 k = position;
@@ -28,8 +38,9 @@ void suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i32 position, 
             new_leaf_node_ptr->m_sibling_ptr = cur_ptr->m_child_ptr;
             new_leaf_node_ptr->m_parent_ptr = cur_ptr;
             cur_ptr->m_child_ptr = new_leaf_node_ptr;
+            hot_ptr = new_leaf_node_ptr;
         } else {
-            this->find_path_and_insert(next_ptr, k, depth + (cur_ptr->m_end - cur_ptr->m_start));
+            this->find_path_and_insert(next_ptr, k, depth + (cur_ptr->m_end - cur_ptr->m_start), hot_ptr);
         }
     } else {
         suffix_tree_node* new_internal_node_ptr = new suffix_tree_node();
@@ -60,6 +71,8 @@ void suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i32 position, 
             grandchild_ptr->m_parent_ptr = new_internal_node_ptr;
             grandchild_ptr = grandchild_ptr->m_sibling_ptr;
         }
+
+        hot_ptr = new_leaf_node_ptr;
     }
 }
 

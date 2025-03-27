@@ -12,7 +12,7 @@ private:
 
     void constructor_helper();
     void destructor_helper(suffix_tree_node*);
-    void find_path_and_insert(suffix_tree_node*, i32, i32);
+    void find_path_and_insert(suffix_tree_node*, i32, i32, suffix_tree_node*&);
     void print_tree_dfs_stdout_helper(suffix_tree_node*, std::string&);
     void print_tree_structure_helper(suffix_tree_node*, std::string&, std::string&);
     void get_number_leaves_helper(suffix_tree_node*, i32&);
