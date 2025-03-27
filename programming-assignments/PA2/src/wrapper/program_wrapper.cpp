@@ -20,11 +20,9 @@ void program_wrapper::run_program(const int arg_count, const char* const* arg_ve
         std::cerr << "error loading gene" << std::endl;
         return;
     }
-    // time_t start = clock();
     suffix_tree tree(gene_string, alphabet_string);
-    // time_t end = clock();
-    // double dir = ((double) end - start) / CLOCKS_PER_SEC;
     tree.print_tree_structure();
-    // std::cout << dir << std::endl;
-
+    // std::cout << tree.get_number_internas() << std::endl;
+    // std::cout << tree.get_number_leaves() << std::endl;
+    // std::cout << gene_string.size() << std::endl;
 }

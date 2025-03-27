@@ -14,6 +14,7 @@ private:
 
     i32 m_start;
     i32 m_end;
+    i32 m_depth;
 
     friend class suffix_tree;
 public:
