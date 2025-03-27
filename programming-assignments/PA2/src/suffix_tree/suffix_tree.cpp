@@ -92,3 +92,28 @@ void suffix_tree::print_tree_dfs_stdout_helper(suffix_tree_node* parent_ptr, std
         cur_ptr = cur_ptr->m_sibling_ptr;
     }
 }
+
+void suffix_tree::print_tree_structure() {
+    this->print_tree_structure_helper(this->m_root_ptr, "");
+}
+
+void suffix_tree::print_tree_structure_helper(suffix_tree_node* cur_ptr, std::string prefix) {
+    if (cur_ptr == nullptr) {
+        return;
+    }
+
+    std::cout << prefix;
+    std::cout << (!cur_ptr->m_sibling_ptr ? "└── " : "├── ");
+    
+    std::cout << (cur_ptr->is_leaf() ? "[Leaf]" : "[Internal]") 
+              << " (" << cur_ptr->m_start << ", " << cur_ptr->m_end << ")" << std::endl;
+
+    std::string new_prefix = prefix + (!cur_ptr->m_sibling_ptr ? "    " : "│   ");
+
+    suffix_tree_node* cur_child = cur_ptr->m_child_ptr;
+
+    while (cur_child) {
+        this->print_tree_structure_helper(cur_child, new_prefix);
+        cur_child = cur_child->m_sibling_ptr;
+    }
+}

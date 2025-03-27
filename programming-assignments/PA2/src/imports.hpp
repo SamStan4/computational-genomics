@@ -9,6 +9,8 @@
 #include <unordered_set>
 #include <algorithm>
 #include <cctype>
+#include <time.h>
+#include <vector>
 
 using i32 = int32_t;
 using u32 = u_int32_t;

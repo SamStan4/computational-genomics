@@ -14,10 +14,12 @@ private:
     void destructor_helper(suffix_tree_node*);
     void find_path_and_insert(suffix_tree_node*, i32);
     void print_tree_dfs_stdout_helper(suffix_tree_node*, std::string&);
+    void print_tree_structure_helper(suffix_tree_node*, std::string);
 public:
     suffix_tree(const std::string&, const std::string&);
     ~suffix_tree();
     void print_tree_dfs_stdout();
+    void print_tree_structure();
 };
 
 #endif
