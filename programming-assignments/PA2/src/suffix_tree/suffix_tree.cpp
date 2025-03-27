@@ -1,8 +1,15 @@
 #include "./suffix_tree.hpp"
 
 void suffix_tree::constructor_helper() {
+    // suffix_tree_node* active_ptr = this->m_root_ptr;
     for (i32 i = 0; i <= (i32)this->m_string.size(); ++i) {
         this->find_path_and_insert(this->m_root_ptr, i);
+        // this->find_path_and_insert(active_ptr, i);
+        // if (active_ptr->m_suffix_ptr) {
+        //     active_ptr = active_ptr->m_suffix_ptr;
+        // } else {
+        //     active_ptr = m_root_ptr;
+        // }
     }
 }
 
@@ -25,6 +32,7 @@ void suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i32 position) 
             new_leaf_node_ptr->m_start = k;
             new_leaf_node_ptr->m_end = (i32)this->m_string.size() + 1;
             new_leaf_node_ptr->m_sibling_ptr = cur_ptr->m_child_ptr;
+            new_leaf_node_ptr->m_parent_ptr = cur_ptr;
             cur_ptr->m_child_ptr = new_leaf_node_ptr;
         } else {
             this->find_path_and_insert(next_ptr, k);
@@ -32,6 +40,9 @@ void suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i32 position) 
     } else {
         suffix_tree_node* new_internal_node_ptr = (suffix_tree_node*)new suffix_tree_node();
         suffix_tree_node* new_leaf_node_ptr = (suffix_tree_node*)new suffix_tree_node();
+
+        new_internal_node_ptr->m_parent_ptr = cur_ptr;
+        new_leaf_node_ptr->m_parent_ptr = cur_ptr;
 
         new_internal_node_ptr->m_start = i;
         new_internal_node_ptr->m_end = j;
@@ -44,6 +55,18 @@ void suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i32 position) 
         cur_ptr->m_end = i;
 
         new_internal_node_ptr->m_sibling_ptr = new_leaf_node_ptr;
+
+        suffix_tree_node* grandchild_ptr = new_internal_node_ptr->m_child_ptr;
+
+        while (grandchild_ptr) {
+            grandchild_ptr->m_parent_ptr = new_internal_node_ptr;
+            grandchild_ptr = grandchild_ptr->m_sibling_ptr;
+        }
+
+        // if (cur_ptr->m_suffix_ptr) {
+        //     new_internal_node_ptr->m_suffix_ptr = cur_ptr->m_suffix_ptr->get_pointer(this->m_string, new_internal_node_ptr->m_start);
+        // }
+        // cur_ptr->m_suffix_ptr = new_internal_node_ptr;
     }
 }
 

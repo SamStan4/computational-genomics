@@ -40,7 +40,14 @@ run_banana: $(TARGET)
 		exit 1; \
 	fi
 
-# Debug build
+run_mississippi: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/English_alphabet.txt inputs/genes/mississippi.txt; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
 debug: CXXFLAGS += -g -O0
 debug: $(DEBUG_TARGET)
 
